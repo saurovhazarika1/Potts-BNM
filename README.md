@@ -80,25 +80,25 @@ Communication Path Analysis
 ```
 
 ---
+## Potts Energy of Each MD Frame
 
-# 1. Potts Energy of Each MD Frame
+For every MD frame, the Potts model assigns a total statistical energy:
 
-For every MD frame, the Potts model assigns an interaction energy
-
-```math
+$$
 E_{\mathrm{MD}}(t)
 =
-\sum_i h_i(x_i(t))
-\sum_{i<j} J_{ij}(x_i(t), x_j(t))
+-\sum_i h_i(x_i(t))
+-\sum_{i<j} J_{ij}(x_i(t), x_j(t))
+$$
 
-```
-where
+where:
 
-- $x_i(t)$ is the discrete state of residue $i$ at frame $t$,
-- $h_i$ denotes the single-site field,
-- $J_{ij}$ denotes the pairwise coupling between residues.
+- $x_i(t)$ — discrete state of residue $i$ at frame $t$, with $x_i \in \{1, \dots, q\}$
+- $h_i(\cdot)$ — single-site (local) field for residue $i$
+- $J_{ij}(\cdot, \cdot)$ — pairwise coupling between residues $i$ and $j$
+- $i, j = 1, \dots, L$, where $L$ is the number of residues, and $i < j$ ensures each pair is counted once
 
-This energy represents the interaction energy of the complete protein for that frame.
+This energy represents the total local-field and pairwise-interaction contributions to the Potts energy of the complete protein for that frame.
 
 ---
 

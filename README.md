@@ -90,13 +90,13 @@ E_{\mathrm{MD}}(t)
 =
 -\sum_i h_i(x_i(t))
 - \sum_{i<j} J_{ij}(x_i(t), x_j(t))
-```
+
 where
 
 - $x_i(t)$ is the discrete state of residue $i$ at frame $t$,
 - $h_i$ denotes the single-site field,
 - $J_{ij}$ denotes the pairwise coupling between residues.
-
+```
 This energy represents the interaction energy of the complete protein for that frame.
 
 ---

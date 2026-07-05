@@ -85,12 +85,7 @@ Communication Path Analysis
 
 For every MD frame, the Potts model assigns an interaction energy
 
-```math
-E_{\mathrm{MD}}(t)
-=
--\sum_i h_i(x_i(t))
--\sum_{i<j}J_{ij}(x_i(t),x_j(t))
-```
+<img src="https://render.githubusercontent.com/render/math?math=E_%7B%5Cmathrm%7BMD%7D%7D(t)%20%3D%20-%5Csum_i%20h_i(x_i(t))%20-%20%5Csum_%7Bi%3Cj%7D%20J_%7Bij%7D(x_i(t)%2Cx_j(t))">
 where
 
 - $x_i(t)$ is the discrete state of residue $i$ at frame $t$,

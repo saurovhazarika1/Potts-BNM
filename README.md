@@ -85,7 +85,7 @@ Communication Path Analysis
 
 For every MD frame, the Potts model assigns an interaction energy
 
-$$
+```math
 E_{\mathrm{MD}}(t)
 =
 -
@@ -93,7 +93,7 @@ E_{\mathrm{MD}}(t)
 -
 \sum_{i<j}
 J_{ij}\left(x_i(t),x_j(t)\right),
-$$
+```
 
 where
 
@@ -120,13 +120,13 @@ Window 3 : frames 200–299
 
 The average energy of each window is
 
-$$
+```math
 E_{\mathrm{MD}}(w)
 =
 \frac{1}{N_w}
 \sum_{t\in w}
 E_{\mathrm{MD}}(t),
-$$
+```
 
 where $N_w$ is the number of frames in the window.
 
@@ -138,7 +138,7 @@ Window averaging reduces statistical noise and provides a natural timescale for 
 
 Each window energy is converted into an equilibrium probability using the Boltzmann distribution
 
-$$
+```math
 P_{\mathrm{MD}}(w)
 =
 \frac{
@@ -147,7 +147,7 @@ e^{-\beta E_{\mathrm{MD}}(w)}
 \sum_{w'}
 e^{-\beta E_{\mathrm{MD}}(w')}
 }.
-$$
+```
 
 Throughout this work,
 
@@ -166,9 +166,9 @@ Therefore,
 
 The MD windows are ranked according to
 
-$$
+```math
 P_{\mathrm{MD}}(w).
-$$
+```
 
 The ranked windows are divided into equal-population quantiles.
 
@@ -195,19 +195,19 @@ The analysis defines
 
 Equivalently,
 
-$$
+```math
 \text{highMD}
 =
 \text{low Potts energy},
-$$
+```
 
 and
 
-$$
+```math
 \text{lowMD}
 =
 \text{high Potts energy}.
-$$
+```
 
 ---
 

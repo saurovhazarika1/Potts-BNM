@@ -88,9 +88,7 @@ For every MD frame, the Potts model assigns an interaction energy
 ```math
 E_{\mathrm{MD}}(t)
 =
--
 \sum_i h_i(x_i(t))
--
 \sum_{i<j} J_{ij}(x_i(t), x_j(t))
 
 ```

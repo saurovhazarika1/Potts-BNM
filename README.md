@@ -88,11 +88,8 @@ For every MD frame, the Potts model assigns an interaction energy
 ```math
 E_{\mathrm{MD}}(t)
 =
--
-\sum_i h_i(x_i(t))
--
-\sum_{i<j}
-J_{ij}\left(x_i(t),x_j(t)\right),
+-\sum_i h_i\!\left(x_i(t)\right)
+-\sum_{i<j} J_{ij}\!\left(x_i(t),x_j(t)\right)
 ```
 
 where
@@ -102,8 +99,6 @@ where
 - $J_{ij}$ denotes the pairwise coupling between residues.
 
 This energy represents the interaction energy of the complete protein for that frame.
-
----
 
 # 2. Window Averaging
 

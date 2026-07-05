@@ -86,10 +86,7 @@ Communication Path Analysis
 For every MD frame, the Potts model assigns an interaction energy
 
 ```math
-E_{\mathrm{MD}}(t)
-=
--\sum_i h_i\!\left(x_i(t)\right)
--\sum_{i<j} J_{ij}\!\left(x_i(t),x_j(t)\right)
+E_{MD}(t) = -\sum_i h_i(x_i(t)) - \sum_{i<j} J_{ij}(x_i(t),x_j(t))
 ```
 
 where
@@ -99,6 +96,8 @@ where
 - $J_{ij}$ denotes the pairwise coupling between residues.
 
 This energy represents the interaction energy of the complete protein for that frame.
+
+---
 
 # 2. Window Averaging
 
@@ -120,7 +119,7 @@ E_{\mathrm{MD}}(w)
 =
 \frac{1}{N_w}
 \sum_{t\in w}
-E_{\mathrm{MD}}(t),
+E_{\mathrm{MD}}(t)
 ```
 
 where $N_w$ is the number of frames in the window.
@@ -141,7 +140,7 @@ e^{-\beta E_{\mathrm{MD}}(w)}
 }{
 \sum_{w'}
 e^{-\beta E_{\mathrm{MD}}(w')}
-}.
+}
 ```
 
 Throughout this work,
@@ -162,7 +161,7 @@ Therefore,
 The MD windows are ranked according to
 
 ```math
-P_{\mathrm{MD}}(w).
+P_{\mathrm{MD}}(w)
 ```
 
 The ranked windows are divided into equal-population quantiles.
@@ -193,7 +192,7 @@ Equivalently,
 ```math
 \text{highMD}
 =
-\text{low Potts energy},
+\text{low Potts energy}
 ```
 
 and
@@ -201,7 +200,7 @@ and
 ```math
 \text{lowMD}
 =
-\text{high Potts energy}.
+\text{high Potts energy}
 ```
 
 ---

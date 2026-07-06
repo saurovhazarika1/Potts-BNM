@@ -1,6 +1,6 @@
 # MD Probability-Based Communication Analysis
 
-This module analyzes communication pathways by partitioning molecular dynamics (MD) trajectories according to the **equilibrium probability** of each MD window computed from the Potts Hamiltonian. Rather than clustering structures using geometric coordinates (e.g., RMSD or PCA), the method classifies conformational regions using the statistical-mechanical energy learned by the Potts model.
+This module analyzes communication pathways by partitioning molecular dynamics (MD) trajectories according to the equilibrium probability of each MD window computed from the Potts Hamiltonian. Rather than clustering structures using geometric coordinates (e.g., RMSD or PCA), the method classifies conformational regions using the statistical-mechanical energy learned by the Potts model.
 
 The central objective is to investigate how communication pathways differ between thermodynamically favorable and unfavorable regions of the equilibrium ensemble.
 
@@ -180,8 +180,8 @@ Bin 5  → Highest probability
 
 The analysis defines
 
-- **highMD** = highest-probability windows
-- **lowMD** = lowest-probability windows
+- highMD = highest-probability windows
+- lowMD = lowest-probability windows
 
 Equivalently,
 

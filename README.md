@@ -84,7 +84,7 @@ Communication Path Analysis
 
 For every MD frame, the Potts model assigns a total statistical energy:
 
-$$E_{\mathrm{MD}}(t) = -\sum_i h_i(x_i(t)) - \sum_{i<j} J_{ij}(x_i(t), x_j(t))$$
+$E_{\mathrm{MD}}(t) = -\sum_i h_i(x_i(t)) - \sum_{i<j} J_{ij}(x_i(t), x_j(t))$
 
 where:
 

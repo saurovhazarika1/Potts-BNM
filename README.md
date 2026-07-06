@@ -1,6 +1,6 @@
 # MD Probability-Based Communication Analysis
 
-This module analyzes communication pathways by partitioning molecular dynamics (MD) trajectories according to the equilibrium probability of each MD window computed from the Potts Hamiltonian. Rather than clustering structures using geometric coordinates (e.g., RMSD or PCA), the method classifies conformational regions using the statistical-mechanical energy learned by the Potts model.
+This module analyzes communication pathways by partitioning molecular dynamics (MD) trajectories according to the **equilibrium probability** of each MD window computed from the Potts Hamiltonian. Rather than clustering structures using geometric coordinates (e.g., RMSD or PCA), the method classifies conformational regions using the statistical-mechanical energy learned by the Potts model.
 
 The central objective is to investigate how communication pathways differ between thermodynamically favorable and unfavorable regions of the equilibrium ensemble.
 
@@ -39,86 +39,71 @@ Once these preprocessing steps have been completed, the resulting discrete resid
 
 ---
 
-## Repository Structure
+# Workflow
 
-- potts_fit_md_bn_elastic_graph.py — Potts+BNM parameter learning
-- communication_analysis.py — Communication pathway analysis
-
-## Required Inputs
-
-- Quantized MD trajectory
-- Bayesian Network samples
-- Bayesian Network edge list
-
-## Potts+BNM Parameter Learning
-
-```math
-f_i^{target}=(1-\alpha)f_i^{MD}+\alpha f_i^{BN}
+```text
+MD Trajectory
+      │
+      ▼
+Per-residue Energy /
+Contact-State Analysis
+      │
+      ▼
+Discrete Residue States
+      │
+      ▼
+Bayesian Network
+(BaNDyT)
+      │
+      ▼
+Potts Hamiltonian (h, J)
+      │
+      ▼
+Frame Energy
+      │
+      ▼
+Window Averaging
+      │
+      ▼
+Boltzmann Probability
+      │
+      ▼
+Probability Binning
+      │
+      ├──────────────┐
+      ▼              ▼
+   High MD        Low MD
+      │              │
+      └──────┬───────┘
+             ▼
+Communication Path Analysis
 ```
 
-```math
-f_{ij}^{target}=(1-\alpha)f_{ij}^{MD}+\alpha f_{ij}^{BN}
-```
-
-The Potts Hamiltonian is
-
-`E_MD(t) = -Σ_i h_i(x_i(t)) - Σ_{i<j} J_{ij}(x_i(t),x_j(t))`
-
-Model expectations are estimated using Metropolis Monte Carlo sampling.
-
-## Communication Analysis
-
-```math
-P_{MD}(w)=\frac{e^{-\beta E_{MD}(w)}}{\sum_{w'}e^{-\beta E_{MD}(w')}}
-```
-
-## Communication Path Energy
-
-```math
-E_{path}=-\sum_{i\in path}h_i-\sum_{(i,j)\in path}J_{ij}
-```
-
-## Communication Path Probability
-
-```math
-P_{path}(p)=\frac{e^{-\beta E_{path}(p)}}{\sum_{p'}e^{-\beta E_{path}(p')}}
-```
-
-## Dijkstra Shortest Paths
-
-Communication pathways are identified using Dijkstra's shortest-path algorithm.
-
-```math
-p^*=\arg\min_p\sum_{(i,j)\in p}c_{ij}
-```
-
-## Outputs
-
-- Learned h and J parameters
-- Monte Carlo samples
-- Training history
-- Metadata
-
-## Example
-
-```bash
-python potts_fit_md_bn_elastic_graph.py
-```
 ---
-## Potts Energy of Each MD Frame
 
-For every MD frame, the Potts model assigns a total statistical energy:
+# 1. Potts Energy of Each MD Frame
 
-$E_{\mathrm{MD}}(t) = -\sum_i h_i(x_i(t)) - \sum_{i<j} J_{ij}(x_i(t), x_j(t))$
+For every MD frame, the Potts model assigns an interaction energy
 
-where:
+$$
+E_{\mathrm{MD}}(t)
+=
+-
+\sum_i h_i(x_i(t))
+-
+\sum_{i<j}
+J_{ij}\left(x_i(t),x_j(t)\right),
+$$
 
-- $x_i(t)$ — discrete state of residue $i$ at frame $t$, with $x_i \in \{1, \dots, q\}$
-- $h_i(\cdot)$ — single-site (local) field for residue $i$
-- $J_{ij}(\cdot, \cdot)$ — pairwise coupling between residues $i$ and $j$
-- $i, j = 1, \dots, L$, where $L$ is the number of residues, and $i < j$ ensures each pair is counted once
+where
 
-This energy represents the total local-field and pairwise-interaction contributions to the Potts energy of the complete protein for that frame.
+- $x_i(t)$ is the discrete state of residue $i$ at frame $t$,
+- $h_i$ denotes the single-site field,
+- $J_{ij}$ denotes the pairwise coupling between residues.
+
+This energy represents the interaction energy of the complete protein for that frame.
+
+---
 
 # 2. Window Averaging
 
@@ -135,13 +120,13 @@ Window 3 : frames 200–299
 
 The average energy of each window is
 
-```math
+$$
 E_{\mathrm{MD}}(w)
 =
 \frac{1}{N_w}
 \sum_{t\in w}
-E_{\mathrm{MD}}(t)
-```
+E_{\mathrm{MD}}(t),
+$$
 
 where $N_w$ is the number of frames in the window.
 
@@ -153,7 +138,7 @@ Window averaging reduces statistical noise and provides a natural timescale for 
 
 Each window energy is converted into an equilibrium probability using the Boltzmann distribution
 
-```math
+$$
 P_{\mathrm{MD}}(w)
 =
 \frac{
@@ -161,8 +146,8 @@ e^{-\beta E_{\mathrm{MD}}(w)}
 }{
 \sum_{w'}
 e^{-\beta E_{\mathrm{MD}}(w')}
-}
-```
+}.
+$$
 
 Throughout this work,
 
@@ -181,9 +166,9 @@ Therefore,
 
 The MD windows are ranked according to
 
-```math
-P_{\mathrm{MD}}(w)
-```
+$$
+P_{\mathrm{MD}}(w).
+$$
 
 The ranked windows are divided into equal-population quantiles.
 
@@ -205,24 +190,24 @@ Bin 5  → Highest probability
 
 The analysis defines
 
-- highMD = highest-probability windows
-- lowMD = lowest-probability windows
+- **highMD** = highest-probability windows
+- **lowMD** = lowest-probability windows
 
 Equivalently,
 
-```math
+$$
 \text{highMD}
 =
-\text{low Potts energy}
-```
+\text{low Potts energy},
+$$
 
 and
 
-```math
+$$
 \text{lowMD}
 =
-\text{high Potts energy}
-```
+\text{high Potts energy}.
+$$
 
 ---
 

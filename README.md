@@ -14,7 +14,7 @@ The central objective is to investigate how communication pathways differ betwee
 
 ```
 .
-├── potts_fit_md_bn_elastic_graph.py   # Potts+BNM parameter learning
+├──fit_potts_bnm.py # Potts+BNM parameter learning
 ├── communication_analysis.py          # Communication pathway analysis
 ├── ...
 └── README.md

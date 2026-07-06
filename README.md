@@ -1,65 +1,29 @@
 # MD Probability-Based Communication Analysis
 
-This module analyzes communication pathways by partitioning molecular dynamics (MD) trajectories according to the **equilibrium probability** of each MD window computed from the Potts Hamiltonian. Rather than clustering structures using geometric coordinates (e.g., RMSD or PCA), the method classifies conformational regions using the statistical-mechanical energy learned by the Potts model.
+This repository implements a Potts Hamiltonian-based framework for analyzing allosteric communication pathways from molecular dynamics (MD) simulations.
 
-The central objective is to investigate how communication pathways differ between thermodynamically favorable and unfavorable regions of the equilibrium ensemble.
+Rather than partitioning conformations using geometric similarity (e.g., RMSD or PCA), this method uses the equilibrium probability of MD windows computed from a learned Potts Hamiltonian to identify thermodynamically favorable and unfavorable regions of the conformational ensemble. Communication pathways are then reconstructed and analyzed separately within these regions.
 
----
-
-# Required Preprocessing
-
-Before running this workflow, the molecular dynamics (MD) trajectory must first be converted into discrete residue states and a corresponding Bayesian Network (BN). These preprocessing steps are **not** performed by this repository.
-
-## 1. Per-residue Energy or Contact-State Calculation
-
-For every MD frame, each residue must be assigned a discrete state. The Potts+BNM framework is independent of how these states are generated, and users may employ any suitable approach for discretizing the MD trajectory.
-
-Possible approaches include, but are not limited to,
-
-- Per-residue interaction energies
-- Binary residue-residue contact states
-- Distance-based contact maps
-- Other residue-level descriptors derived from MD trajectories
-
-The only requirement is that every residue is represented by a discrete state for each MD frame. These discrete residue states constitute the input to the Potts model.
-
-## 2. Bayesian Network Construction
-
-A Bayesian Network (BN) must then be inferred from the discretized MD data to identify the direct probabilistic dependencies between residues.
-
-We recommend using **BaNDyT** for Bayesian Network construction:
-
-**BaNDyT GitHub Repository**
-
-https://github.com/bandyt-group/bandyt
-
-The inferred Bayesian Network defines the network topology used by the Potts+BNM framework. Pairwise Potts couplings are learned only for residue pairs connected by Bayesian Network edges.
-
-Once these preprocessing steps have been completed, the resulting discrete residue states and Bayesian Network can be used directly with the workflow described below.
+The method is built on the Potts+BNM framework, in which the interaction network is constrained by a Bayesian Network learned from MD trajectories.
 
 ---
 
-# Workflow
+## Workflow
 
-```text
+```
 MD Trajectory
-      │
-      ▼
-Per-residue Energy /
-Contact-State Analysis
       │
       ▼
 Discrete Residue States
       │
       ▼
-Bayesian Network
-(BaNDyT)
+Bayesian Network (BaNDyT)
       │
       ▼
-Potts Hamiltonian (h, J)
+Potts+BNM Parameter Learning
       │
       ▼
-Frame Energy
+Frame Potts Energy
       │
       ▼
 Window Averaging
@@ -68,147 +32,120 @@ Window Averaging
 Boltzmann Probability
       │
       ▼
-Probability Binning
+Probability-Based MD Regions
       │
-      ├──────────────┐
-      ▼              ▼
-   High MD        Low MD
-      │              │
-      └──────┬───────┘
-             ▼
-Communication Path Analysis
+      ▼
+Communication Network Construction
+      │
+      ▼
+Shortest Communication Paths
+      │
+      ▼
+Path Energies & Path Probabilities
+      │
+      ▼
+Communication Analysis
 ```
 
 ---
 
-# 1. Potts Energy of Each MD Frame
+## Required Preprocessing
 
-For every MD frame, the Potts model assigns an interaction energy
+This repository assumes that the Potts+BNM model has already been trained.
 
-$$
-E_{\mathrm{MD}}(t)
-=
--
-\sum_i h_i(x_i(t))
--
-\sum_{i<j}
-J_{ij}\left(x_i(t),x_j(t)\right),
-$$
+Required inputs are:
 
-where
+- MD trajectory converted into discrete residue states
+- Bayesian Network inferred from the discrete trajectory
+- Learned Potts parameters (`h.npy` and `J.npy`)
 
-- $x_i(t)$ is the discrete state of residue $i$ at frame $t$,
-- $h_i$ denotes the single-site field,
-- $J_{ij}$ denotes the pairwise coupling between residues.
-
-This energy represents the interaction energy of the complete protein for that frame.
+Bayesian Networks can be generated using BaNDyT.
 
 ---
 
-# 2. Window Averaging
+## Communication Network Construction
 
-The MD trajectory is divided into consecutive windows of fixed size.
+The learned Potts couplings define a weighted residue interaction network.
 
-Example
+For each interacting residue pair:
 
-```text
-Window 1 : frames   0–99
-Window 2 : frames 100–199
-Window 3 : frames 200–299
-...
-```
+$$S_{ij} = \|J_{ij}\|_F$$
 
-The average energy of each window is
+where $S_{ij}$ is the Frobenius norm of the Potts coupling tensor.
 
-$$
-E_{\mathrm{MD}}(w)
-=
-\frac{1}{N_w}
-\sum_{t\in w}
-E_{\mathrm{MD}}(t),
-$$
+Communication edge costs are then defined as:
 
-where $N_w$ is the number of frames in the window.
+$$c_{ij} = S_{\max} - S_{ij} + \varepsilon$$
 
-Window averaging reduces statistical noise and provides a natural timescale for communication analysis.
+so that stronger Potts couplings correspond to lower communication cost.
 
 ---
 
-# 3. MD Window Probability
+## Communication Path Identification
 
-Each window energy is converted into an equilibrium probability using the Boltzmann distribution
+Communication pathways between the specified source and target residues are generated using Dijkstra's shortest-path algorithm (with optional shortest-simple-path enumeration).
 
-$$
-P_{\mathrm{MD}}(w)
-=
-\frac{
-e^{-\beta E_{\mathrm{MD}}(w)}
-}{
-\sum_{w'}
-e^{-\beta E_{\mathrm{MD}}(w')}
-}.
-$$
+For each path, the communication energy is computed from the Potts Hamiltonian. Two energy definitions are supported:
 
-Throughout this work,
+- **HJ** — single-site fields + pairwise couplings
+- **J_ONLY** — pairwise couplings only
 
-```python
-FRAME_BETA = 1.0
-```
-
-Therefore,
-
-- lower-energy windows receive higher probability,
-- higher-energy windows receive lower probability.
+Both length-normalized versions (`HJ_MEAN` and `J_ONLY_MEAN`) are also available.
 
 ---
 
-# 4. Defining High- and Low-Probability MD Regions
+## MD Probability Landscape
 
-The MD windows are ranked according to
+For every MD frame, the full Potts Hamiltonian is evaluated:
 
-$$
-P_{\mathrm{MD}}(w).
-$$
+$$E_{\mathrm{MD}}(t) = -\sum_i h_i(x_i) - \sum_{i<j} J_{ij}(x_i,x_j)$$
 
-The ranked windows are divided into equal-population quantiles.
+Frame energies are averaged over user-defined windows:
 
-For example,
+$$E_{\mathrm{MD}}(w) = \frac{1}{N_w} \sum_{t \in w} E_{\mathrm{MD}}(t)$$
 
-```python
-N_PROB_BINS = 5
-```
+and converted into equilibrium probabilities:
 
-produces
+$$P_{\mathrm{MD}}(w) = \frac{e^{-\beta E_{\mathrm{MD}}(w)}}{\sum_{w'} e^{-\beta E_{\mathrm{MD}}(w')}}$$
 
-```text
-Bin 1  → Lowest probability
-Bin 2
-Bin 3
-Bin 4
-Bin 5  → Highest probability
-```
-
-The analysis defines
-
-- **highMD** = highest-probability windows
-- **lowMD** = lowest-probability windows
-
-Equivalently,
-
-$$
-\text{highMD}
-=
-\text{low Potts energy},
-$$
-
-and
-
-$$
-\text{lowMD}
-=
-\text{high Potts energy}.
-$$
+The MD windows are ranked according to their equilibrium probability and partitioned into **highMD** and **lowMD** regions.
 
 ---
 
+## Path Probability
 
+Within each MD window, every communication pathway is assigned a Boltzmann probability:
+
+$$P_{\mathrm{path}}(p) = \frac{e^{-\beta E_{\mathrm{path}}(p)}}{\sum_q e^{-\beta E_{\mathrm{path}}(q)}}$$
+
+Only the most probable communication pathways are retained for downstream analyses.
+
+---
+
+## Analyses Performed
+
+The repository computes a comprehensive set of communication metrics, including:
+
+- Communication-path occupancy
+- Path persistence
+- Communication-energy spectra
+- Path probability distributions
+- Path diversity
+- Positive/negative pathway correlations
+- Communication frustration
+- Robustness analyses across parameter settings
+- Correlations with experimental functional measurements
+
+---
+
+## Outputs
+
+The workflow automatically generates:
+
+- Communication pathways
+- Path probability tables
+- Communication metrics
+- CSV summaries
+- Publication-quality figures
+- Robustness analyses
+- Correlation analyses against experimental efficacy

@@ -13,7 +13,6 @@ The central objective is to investigate how communication pathways differ betwee
 ## Repository Structure
 
 ```
-.
 ├──fit_potts_bnm.py # Potts+BNM parameter learning
 ├── communication_analysis.py          # Communication pathway analysis
 ├── energy_spectrum_analysis.py  # communication-energy spectrum changes between highMD and lowMD regions

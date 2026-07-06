@@ -39,46 +39,71 @@ Once these preprocessing steps have been completed, the resulting discrete resid
 
 ---
 
-# Workflow
+## Repository Structure
 
-```text
-MD Trajectory
-      │
-      ▼
-Per-residue Energy /
-Contact-State Analysis
-      │
-      ▼
-Discrete Residue States
-      │
-      ▼
-Bayesian Network
-(BaNDyT)
-      │
-      ▼
-Potts Hamiltonian (h, J)
-      │
-      ▼
-Frame Energy
-      │
-      ▼
-Window Averaging
-      │
-      ▼
-Boltzmann Probability
-      │
-      ▼
-Probability Binning
-      │
-      ├──────────────┐
-      ▼              ▼
-   High MD        Low MD
-      │              │
-      └──────┬───────┘
-             ▼
-Communication Path Analysis
+- potts_fit_md_bn_elastic_graph.py — Potts+BNM parameter learning
+- communication_analysis.py — Communication pathway analysis
+
+## Required Inputs
+
+- Quantized MD trajectory
+- Bayesian Network samples
+- Bayesian Network edge list
+
+## Potts+BNM Parameter Learning
+
+```math
+f_i^{target}=(1-\alpha)f_i^{MD}+\alpha f_i^{BN}
 ```
 
+```math
+f_{ij}^{target}=(1-\alpha)f_{ij}^{MD}+\alpha f_{ij}^{BN}
+```
+
+The Potts Hamiltonian is
+
+`E_MD(t) = -Σ_i h_i(x_i(t)) - Σ_{i<j} J_{ij}(x_i(t),x_j(t))`
+
+Model expectations are estimated using Metropolis Monte Carlo sampling.
+
+## Communication Analysis
+
+```math
+P_{MD}(w)=\frac{e^{-\beta E_{MD}(w)}}{\sum_{w'}e^{-\beta E_{MD}(w')}}
+```
+
+## Communication Path Energy
+
+```math
+E_{path}=-\sum_{i\in path}h_i-\sum_{(i,j)\in path}J_{ij}
+```
+
+## Communication Path Probability
+
+```math
+P_{path}(p)=\frac{e^{-\beta E_{path}(p)}}{\sum_{p'}e^{-\beta E_{path}(p')}}
+```
+
+## Dijkstra Shortest Paths
+
+Communication pathways are identified using Dijkstra's shortest-path algorithm.
+
+```math
+p^*=\arg\min_p\sum_{(i,j)\in p}c_{ij}
+```
+
+## Outputs
+
+- Learned h and J parameters
+- Monte Carlo samples
+- Training history
+- Metadata
+
+## Example
+
+```bash
+python potts_fit_md_bn_elastic_graph.py
+```
 ---
 ## Potts Energy of Each MD Frame
 

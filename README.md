@@ -10,6 +10,18 @@ The central objective is to investigate how communication pathways differ betwee
 
 ---
 
+## Repository Structure
+
+```
+.
+├── potts_fit_md_bn_elastic_graph.py   # Potts+BNM parameter learning
+├── communication_analysis.py          # Communication pathway analysis
+├── ...
+└── README.md
+```
+
+---
+
 ## Workflow
 
 ```text
@@ -56,9 +68,75 @@ Communication Analysis
 
 ---
 
+## Model Training: Potts+BNM Parameter Learning
+
+Before any communication analysis can be performed, the Potts Hamiltonian must be fit to the MD trajectory. This is done in `potts_fit_md_bn_elastic_graph.py`.
+
+The Potts Hamiltonian is learned from MD trajectories and Bayesian Network samples by matching one- and two-body marginal distributions.
+
+The target marginals are:
+
+$$f_i^{\mathrm{target}} = (1-\alpha) f_i^{\mathrm{MD}} + \alpha f_i^{\mathrm{BN}}$$
+
+and
+
+$$f_{ij}^{\mathrm{target}} = (1-\alpha) f_{ij}^{\mathrm{MD}} + \alpha f_{ij}^{\mathrm{BN}}$$
+
+where $\alpha$ controls the contribution of Bayesian Network samples relative to the raw MD statistics.
+
+The parameters ($h$ and $J$) are optimized using Monte Carlo sampling and moment matching until convergence.
+
+### Bayesian-Network-Constrained Couplings
+
+Unlike a conventional Potts model, pairwise couplings are learned only between residues connected by Bayesian Network edges.
+
+This dramatically reduces the number of free parameters while preserving the probabilistic dependency structure learned from MD, and is one of the central novelties of the Potts+BNM approach.
+
+### Graph-Regularized Potts Model
+
+To prevent overfitting, the pairwise couplings are regularized using graph-guided elastic penalties.
+
+Edges inferred by the Bayesian Network receive weaker regularization than non-network residue pairs.
+
+The optimization includes:
+
+- L2 block regularization
+- Group-L1 regularization
+- Zero-sum gauge fixing
+
+throughout training.
+
+### Monte Carlo Sampling
+
+Model expectations (the marginals used for moment matching) are estimated using Metropolis Monte Carlo sampling rather than computed analytically.
+
+Each optimization iteration consists of:
+
+1. Burn-in
+2. Monte Carlo sweeps
+3. Estimation of one-body marginals
+4. Estimation of pairwise marginals
+5. Parameter update
+
+Adaptive Monte Carlo settings are used to keep sampling efficient as the parameters evolve during training.
+
+### Training Outputs
+
+The fitting procedure automatically saves:
+
+- learned $h$ fields (`h.npy`)
+- learned $J$ couplings (`J.npy`)
+- Monte Carlo samples
+- one-body marginals
+- two-body marginals
+- convergence history (`training_history.csv`)
+- run metadata
+
+---
+
 ## Required Preprocessing
 
-This repository assumes that the Potts+BNM model has already been trained.
+The communication analysis in this repository (`communication_analysis.py`) assumes that the Potts+BNM model has already been trained as described above.
 
 Required inputs are:
 
@@ -202,11 +280,11 @@ Both length-normalized versions (`HJ_MEAN` and `J_ONLY_MEAN`) are also available
 
 ## 7. Path Probability
 
-Within each MD window, every communication pathway is assigned a Boltzmann probability:
+Once every pathway's communication energy is known, each pathway is assigned a Boltzmann probability within its MD window:
 
-$$P_{\mathrm{path}}(p) = \frac{e^{-\beta E_{\mathrm{path}}(p)}}{\sum_q e^{-\beta E_{\mathrm{path}}(q)}}$$
+$$P_{\mathrm{path}}(p) = \frac{e^{-\beta E_{\mathrm{path}}(p)}}{\sum_{p'} e^{-\beta E_{\mathrm{path}}(p')}}$$
 
-Only the most probable communication pathways are retained for downstream analyses.
+This probability is used to compare communication pathways against one another: pathways with lower communication energy are assigned higher probability, and only the most probable pathways are retained for downstream analyses.
 
 ---
 
@@ -362,6 +440,4 @@ Thus, the Potts model is **not** used to estimate the global conformational free
 
 ---
 
-## Citation
 
-If you use this code in your work, please cite the associated publication (to be added).

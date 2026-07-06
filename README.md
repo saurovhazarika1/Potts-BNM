@@ -2,7 +2,7 @@
 
 This repository implements a Potts Hamiltonian-based framework for analyzing allosteric communication pathways from molecular dynamics (MD) simulations.
 
-Rather than partitioning conformations using geometric similarity (e.g., RMSD or PCA), this method uses the **equilibrium probability** of MD windows computed from a learned Potts Hamiltonian to identify thermodynamically favorable and unfavorable regions of the conformational ensemble. Communication pathways are then reconstructed and analyzed separately within these regions.
+Rather than partitioning conformations using geometric similarity (e.g., RMSD or PCA), this method uses the equilibrium probability of MD windows computed from a learned Potts Hamiltonian to identify thermodynamically favorable and unfavorable regions of the conformational ensemble. Communication pathways are then reconstructed and analyzed separately within these regions.
 
 The method is built on the Potts+BNM framework, in which the interaction network is constrained by a Bayesian Network learned from MD trajectories.
 

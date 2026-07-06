@@ -84,12 +84,7 @@ Communication Path Analysis
 
 For every MD frame, the Potts model assigns a total statistical energy:
 
-$$
-E_{\mathrm{MD}}(t)
-=
--\sum_i h_i(x_i(t))
--\sum_{i<j} J_{ij}(x_i(t), x_j(t))
-$$
+$$E_{\mathrm{MD}}(t) = -\sum_i h_i(x_i(t)) - \sum_{i<j} J_{ij}(x_i(t), x_j(t))$$
 
 where:
 
@@ -99,8 +94,6 @@ where:
 - $i, j = 1, \dots, L$, where $L$ is the number of residues, and $i < j$ ensures each pair is counted once
 
 This energy represents the total local-field and pairwise-interaction contributions to the Potts energy of the complete protein for that frame.
-
----
 
 # 2. Window Averaging
 

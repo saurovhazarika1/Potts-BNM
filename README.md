@@ -1,6 +1,6 @@
 # MD Probability-Based Communication Analysis
 
-This repository implements Potts+BNM, a statistical-mechanical framework that combines Bayesian Network Modeling (BNM) with a Potts Hamiltonian to learn the equilibrium energy landscape of biomolecular conformational dynamics directly from molecular dynamics (MD) simulations.
+This repository implements Potts+BNM, a statistical-mechanical framework that integrates Bayesian Network Modeling (BNM) with a Potts Hamiltonian to infer both the underlying residue interaction network and the equilibrium energy landscape governing biomolecular conformational dynamics from molecular dynamics (MD) simulations.
 
 The framework first infers the conditional dependency structure between protein residues using a Bayesian Network learned from discretized MD trajectories. This learned topology is then used to constrain a Potts Hamiltonian, allowing only statistically supported residue–residue interactions while preserving the expressive power of a maximum-entropy energy model. The resulting Hamiltonian provides an interpretable representation of the conformational ensemble through residue-specific fields and pairwise coupling parameters that capture both local preferences and long-range allosteric interactions.
 

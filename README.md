@@ -1,12 +1,15 @@
 # MD Probability-Based Communication Analysis
 
-This repository implements a Potts Hamiltonian-based framework for analyzing allosteric communication pathways from molecular dynamics (MD) simulations.
+This repository implements Potts+BNM, a statistical-mechanical framework that combines Bayesian Network Modeling (BNM) with a Potts Hamiltonian to learn the equilibrium energy landscape of biomolecular conformational dynamics directly from molecular dynamics (MD) simulations.
 
-Rather than partitioning conformations using geometric similarity (e.g., RMSD or PCA), this method uses the equilibrium probability of MD windows computed from a learned Potts Hamiltonian to identify thermodynamically favorable and unfavorable regions of the conformational ensemble. Communication pathways are then reconstructed and analyzed separately within these regions.
+The framework first infers the conditional dependency structure between protein residues using a Bayesian Network learned from discretized MD trajectories. This learned topology is then used to constrain a Potts Hamiltonian, allowing only statistically supported residue–residue interactions while preserving the expressive power of a maximum-entropy energy model. The resulting Hamiltonian provides an interpretable representation of the conformational ensemble through residue-specific fields and pairwise coupling parameters that capture both local preferences and long-range allosteric interactions.
 
-The method is built on the Potts+BNM framework, in which the interaction network is constrained by a Bayesian Network learned from MD trajectories.
+Unlike conventional analyses that rely primarily on geometric descriptors such as RMSD, principal components, or predefined reaction coordinates, Potts+BNM models the equilibrium probability distribution of protein conformations. Every MD snapshot can therefore be assigned a statistical energy and equilibrium probability, enabling the conformational landscape to be analyzed from a thermodynamic perspective.
 
-The central objective is to investigate how communication pathways differ between thermodynamically favorable and unfavorable regions of the equilibrium ensemble.
+Because the model defines a global probabilistic description of the conformational ensemble, it serves as a general platform for a wide range of downstream analyses. These include identification of thermodynamically favorable and unfavorable conformational regions, reconstruction of allosteric communication pathways, perturbation and mutation analyses, residue-level coupling analysis, frustration characterization, and quantitative comparison of signaling mechanisms across different functional states or ligand-bound systems.
+
+The communication pathway analysis presented in this repository represents one application of the Potts+BNM framework. By combining statistically learned residue couplings with graph-based path analysis, the framework enables systematic investigation of how allosteric information propagates through the energy landscape encoded by the learned Hamiltonian.
+
 
 ---
 

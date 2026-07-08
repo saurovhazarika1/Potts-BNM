@@ -33,13 +33,13 @@ This document develops the first part of the theory behind the Potts+BNM framewo
 The full objective is
 
 $$
-\mathcal{J}(\theta) \;=\; \mathbb{E}_{MD}\big[\log P_\theta(\sigma)\big] \;-\; \lambda \, D_{KL}\big(P_0 \,\|\, P_\theta\big) \;-\; \gamma \sum_{(i,j)\notin E_{BNM}} \|J_{ij}\|_F^2
+\mathcal{J}(\theta) = \mathbb{E}_{MD}\big[\log P_\theta(\sigma)\big] - \lambda D_{KL}\big(P_0 \Vert P_\theta\big) - \gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2
 $$
 
 where
 
 $$
-\theta = \{\, h_i(a),\, J_{ij}(a,b) \,\}
+\theta = \lbrace h_i(a), J_{ij}(a,b) \rbrace
 $$
 
 are the Potts parameters.
@@ -49,8 +49,8 @@ The three terms have distinct roles:
 | Term | Role |
 |---|---|
 | $\mathbb{E}_{MD}[\log P_\theta(\sigma)]$ | fit the MD ensemble |
-| $-\lambda D_{KL}(P_0 \| P_\theta)$ | stay close to the BNM distribution |
-| $-\gamma \sum_{(i,j)\notin E_{BNM}} \|J_{ij}\|_F^2$ | respect the BNM graph topology |
+| $-\lambda D_{KL}(P_0 \Vert P_\theta)$ | stay close to the BNM distribution |
+| $-\gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2$ | respect the BNM graph topology |
 
 ---
 
@@ -73,7 +73,7 @@ where $N$ is the number of modeled sites, residues, contacts, or collective vari
 Each variable takes one of $q$ discrete states:
 
 $$
-\sigma_i \in \{1, 2, \ldots, q\}.
+\sigma_i \in \lbrace1, 2, \ldots, q\rbrace.
 $$
 
 Examples include:
@@ -87,17 +87,15 @@ Examples include:
 For each site $i$, define the one-hot indicator
 
 $$
-x_i^a(\sigma) = \mathbf{1}[\sigma_i = a] =
-\begin{cases}
-1, & \sigma_i = a, \\
-0, & \sigma_i \neq a.
-\end{cases}
+x_i^a(\sigma) = \mathbf{1}[\sigma_i = a]
 $$
+
+that is, $x_i^a(\sigma) = 1$ if $\sigma_i = a$, and $x_i^a(\sigma) = 0$ if $\sigma_i \neq a$.
 
 For a pair of sites $i, j$, define
 
 $$
-x_{ij}^{ab}(\sigma) = x_i^a(\sigma)\, x_j^b(\sigma) = \mathbf{1}[\sigma_i = a,\, \sigma_j = b].
+x_{ij}^{ab}(\sigma) = x_i^a(\sigma) x_j^b(\sigma) = \mathbf{1}[\sigma_i = a, \sigma_j = b].
 $$
 
 The empirical one-site and two-site moments from MD are
@@ -109,7 +107,7 @@ $$
 and
 
 $$
-\hat{p}_{ij}^{MD}(a,b) = \frac{1}{M} \sum_{m=1}^{M} x_i^a(\sigma^{(m)})\, x_j^b(\sigma^{(m)}).
+\hat{p}_{ij}^{MD}(a,b) = \frac{1}{M} \sum_{m=1}^{M} x_i^a(\sigma^{(m)}) x_j^b(\sigma^{(m)}).
 $$
 
 Equivalently,
@@ -135,7 +133,7 @@ $$
 The maximum entropy problem is
 
 $$
-\max_{P} \; S[P],
+\max_{P} S[P],
 $$
 
 subject to normalization,
@@ -147,23 +145,19 @@ $$
 and moment constraints,
 
 $$
-\sum_\sigma P(\sigma)\, x_i^a(\sigma) = p_i(a), \qquad \sum_\sigma P(\sigma)\, x_i^a(\sigma)\, x_j^b(\sigma) = p_{ij}(a,b).
+\sum_\sigma P(\sigma) x_i^a(\sigma) = p_i(a), \qquad \sum_\sigma P(\sigma) x_i^a(\sigma) x_j^b(\sigma) = p_{ij}(a,b).
 $$
 
 We form the Lagrangian
 
 $$
-\begin{aligned}
-\mathcal{L}[P] =\;& -\sum_\sigma P(\sigma)\log P(\sigma) \;-\; \alpha\Big[\sum_\sigma P(\sigma) - 1\Big] \\
-&- \sum_{i,a} \eta_i(a)\Big[\sum_\sigma P(\sigma)\, x_i^a(\sigma) - p_i(a)\Big] \\
-&- \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b)\Big[\sum_\sigma P(\sigma)\, x_i^a(\sigma)\, x_j^b(\sigma) - p_{ij}(a,b)\Big].
-\end{aligned}
+\mathcal{L}[P] = -\sum_\sigma P(\sigma)\log P(\sigma) - \alpha\Big[\sum_\sigma P(\sigma) - 1\Big] - \sum_{i,a} \eta_i(a)\Big[\sum_\sigma P(\sigma) x_i^a(\sigma) - p_i(a)\Big] - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b)\Big[\sum_\sigma P(\sigma) x_i^a(\sigma) x_j^b(\sigma) - p_{ij}(a,b)\Big].
 $$
 
 Take the functional derivative with respect to $P(\sigma)$:
 
 $$
-\frac{\partial \mathcal{L}}{\partial P(\sigma)} = -\log P(\sigma) - 1 - \alpha - \sum_{i,a} \eta_i(a)\, x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b)\, x_i^a(\sigma)\, x_j^b(\sigma).
+\frac{\partial \mathcal{L}}{\partial P(\sigma)} = -\log P(\sigma) - 1 - \alpha - \sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma).
 $$
 
 At the optimum,
@@ -175,19 +169,19 @@ $$
 Therefore,
 
 $$
-\log P(\sigma) = -1 - \alpha - \sum_{i,a} \eta_i(a)\, x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b)\, x_i^a(\sigma)\, x_j^b(\sigma).
+\log P(\sigma) = -1 - \alpha - \sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma).
 $$
 
 Exponentiating,
 
 $$
-P(\sigma) = \exp[-1-\alpha] \; \exp\!\left[-\sum_{i,a} \eta_i(a)\, x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b)\, x_i^a(\sigma)\, x_j^b(\sigma)\right].
+P(\sigma) = \exp[-1-\alpha] \exp\left[-\sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma)\right].
 $$
 
 Define the partition function $Z = \exp[1+\alpha]$, so
 
 $$
-P(\sigma) = \frac{1}{Z} \exp\!\left[-\sum_{i,a} \eta_i(a)\, x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b)\, x_i^a(\sigma)\, x_j^b(\sigma)\right].
+P(\sigma) = \frac{1}{Z} \exp\left[-\sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma)\right].
 $$
 
 This is an exponential-family distribution.
@@ -195,7 +189,7 @@ This is an exponential-family distribution.
 By defining $h_i(a) = -\eta_i(a)$ and $J_{ij}(a,b) = -\eta_{ij}(a,b)$, we obtain
 
 $$
-P_\theta(\sigma) = \frac{1}{Z_\theta} \exp\!\left[\sum_i h_i(\sigma_i) + \sum_{i<j} J_{ij}(\sigma_i,\sigma_j)\right].
+P_\theta(\sigma) = \frac{1}{Z_\theta} \exp\left[\sum_i h_i(\sigma_i) + \sum_{i<j} J_{ij}(\sigma_i,\sigma_j)\right].
 $$
 
 Equivalently, defining the Hamiltonian
@@ -243,7 +237,7 @@ $$
 The model expectation of an observable $A(\sigma)$ is
 
 $$
-\langle A \rangle_{P_\theta} = \sum_\sigma A(\sigma)\, P_\theta(\sigma).
+\langle A \rangle_{P_\theta} = \sum_\sigma A(\sigma) P_\theta(\sigma).
 $$
 
 The model moments are
@@ -265,7 +259,7 @@ $$
 A Bayesian Network Model defines a directed graph over the same variables,
 
 $$
-G_{BNM} = (V, E_{BNM}), \qquad V = \{1, \ldots, N\}.
+G_{BNM} = (V, E_{BNM}), \qquad V = \lbrace1, \ldots, N\rbrace.
 $$
 
 The parents of node $i$ are denoted $Pa(i)$.
@@ -292,7 +286,7 @@ Thus the BNM contributes two priors: the distribution $P_0(\sigma)$ (**distribut
 
 ## 5. Maximum Likelihood Potts Learning
 
-Given MD samples $\{\sigma^{(m)}\}_{m=1}^{M}$, the standard maximum likelihood objective is
+Given MD samples $\lbrace\sigma^{(m)}\rbrace_{m=1}^{M}$, the standard maximum likelihood objective is
 
 $$
 \mathcal{L}(\theta) = \frac{1}{M} \sum_{m=1}^{M} \log P_\theta(\sigma^{(m)}).
@@ -331,13 +325,13 @@ $$
 Since $\dfrac{\partial[-H_\theta(\sigma)]}{\partial h_i(a)} = x_i^a(\sigma)$, we get
 
 $$
-\frac{\partial Z_\theta}{\partial h_i(a)} = \sum_\sigma x_i^a(\sigma)\, e^{-H_\theta(\sigma)}.
+\frac{\partial Z_\theta}{\partial h_i(a)} = \sum_\sigma x_i^a(\sigma) e^{-H_\theta(\sigma)}.
 $$
 
 Therefore,
 
 $$
-\frac{\partial \log Z_\theta}{\partial h_i(a)} = \frac{1}{Z_\theta} \sum_\sigma x_i^a(\sigma)\, e^{-H_\theta(\sigma)} = \big\langle x_i^a \big\rangle_{P_\theta}.
+\frac{\partial \log Z_\theta}{\partial h_i(a)} = \frac{1}{Z_\theta} \sum_\sigma x_i^a(\sigma) e^{-H_\theta(\sigma)} = \big\langle x_i^a \big\rangle_{P_\theta}.
 $$
 
 Thus,
@@ -364,30 +358,30 @@ The model is trained by reducing the difference between empirical MD moments and
 
 ## 6. KL-Regularized Potts Learning
 
-The BNM distribution is now incorporated by adding $-\lambda D_{KL}(P_0 \| P_\theta)$ to the objective.
+The BNM distribution is now incorporated by adding $-\lambda D_{KL}(P_0 \Vert P_\theta)$ to the objective.
 
 The KL divergence is
 
 $$
-D_{KL}(P_0 \| P_\theta) = \sum_\sigma P_0(\sigma) \log \frac{P_0(\sigma)}{P_\theta(\sigma)}.
+D_{KL}(P_0 \Vert P_\theta) = \sum_\sigma P_0(\sigma) \log \frac{P_0(\sigma)}{P_\theta(\sigma)}.
 $$
 
 Equivalently,
 
 $$
-D_{KL}(P_0 \| P_\theta) = \sum_\sigma P_0(\sigma) \log P_0(\sigma) - \sum_\sigma P_0(\sigma) \log P_\theta(\sigma).
+D_{KL}(P_0 \Vert P_\theta) = \sum_\sigma P_0(\sigma) \log P_0(\sigma) - \sum_\sigma P_0(\sigma) \log P_\theta(\sigma).
 $$
 
 In expectation notation,
 
 $$
-D_{KL}(P_0 \| P_\theta) = \mathbb{E}_{P_0}[\log P_0] - \mathbb{E}_{P_0}[\log P_\theta].
+D_{KL}(P_0 \Vert P_\theta) = \mathbb{E}_{P_0}[\log P_0] - \mathbb{E}_{P_0}[\log P_\theta].
 $$
 
 The first term does not depend on $\theta$, so
 
 $$
-\nabla_\theta D_{KL}(P_0 \| P_\theta) = -\nabla_\theta \, \mathbb{E}_{P_0}[\log P_\theta].
+\nabla_\theta D_{KL}(P_0 \Vert P_\theta) = -\nabla_\theta \mathbb{E}_{P_0}[\log P_\theta].
 $$
 
 Now $\log P_\theta(\sigma) = -H_\theta(\sigma) - \log Z_\theta$. Therefore,
@@ -399,13 +393,13 @@ $$
 Using the same derivative identities as above,
 
 $$
-\nabla_\theta \, \mathbb{E}_{P_0}[\log P_\theta] = \langle f \rangle_{P_0} - \langle f \rangle_{P_\theta}.
+\nabla_\theta \mathbb{E}_{P_0}[\log P_\theta] = \langle f \rangle_{P_0} - \langle f \rangle_{P_\theta}.
 $$
 
 Therefore,
 
 $$
-\nabla_\theta \big[-\lambda D_{KL}(P_0 \| P_\theta)\big] = \lambda \big( \langle f \rangle_{P_0} - \langle f \rangle_{P_\theta} \big).
+\nabla_\theta \big[-\lambda D_{KL}(P_0 \Vert P_\theta)\big] = \lambda \big( \langle f \rangle_{P_0} - \langle f \rangle_{P_\theta} \big).
 $$
 
 Adding the MD likelihood gradient,
@@ -467,13 +461,13 @@ Let $E_{BNM}$ be the undirected version of the BNM edge set. That is, if either 
 For unsupported edges, $(i,j) \notin E_{BNM}$, we penalize the coupling matrix $J_{ij}$. The penalty is
 
 $$
-R_{graph}(\theta) = \gamma \sum_{(i,j)\notin E_{BNM}} \|J_{ij}\|_F^2.
+R_{graph}(\theta) = \gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2.
 $$
 
 The Frobenius norm is
 
 $$
-\|J_{ij}\|_F^2 = \sum_{a=1}^{q} \sum_{b=1}^{q} J_{ij}(a,b)^2.
+\VertJ_{ij}\Vert_F^2 = \sum_{a=1}^{q} \sum_{b=1}^{q} J_{ij}(a,b)^2.
 $$
 
 The derivative is
@@ -497,19 +491,19 @@ Because the objective subtracts the penalty, $\mathcal{J} = \cdots - R_{graph}$,
 For each coupling element $J_{ij}(a,b)$, define
 
 $$
-f_{ij}^{ab}(\sigma) = x_i^a(\sigma)\, x_j^b(\sigma).
+f_{ij}^{ab}(\sigma) = x_i^a(\sigma) x_j^b(\sigma).
 $$
 
 The full gradient is
 
 $$
-\frac{\partial \mathcal{J}}{\partial J_{ij}(a,b)} = \langle f_{ij}^{ab} \rangle_{MD} + \lambda \langle f_{ij}^{ab} \rangle_{P_0} - (1+\lambda) \langle f_{ij}^{ab} \rangle_{P_\theta} - 2\gamma\, J_{ij}(a,b)\, \mathbf{1}[(i,j)\notin E_{BNM}].
+\frac{\partial \mathcal{J}}{\partial J_{ij}(a,b)} = \langle f_{ij}^{ab} \rangle_{MD} + \lambda \langle f_{ij}^{ab} \rangle_{P_0} - (1+\lambda) \langle f_{ij}^{ab} \rangle_{P_\theta} - 2\gamma J_{ij}(a,b) \mathbf{1}[(i,j)\notin E_{BNM}].
 $$
 
 Equivalently, at the matrix level,
 
 $$
-\nabla_{J_{ij}} \mathcal{J} = \langle f_{ij} \rangle_{MD} + \lambda \langle f_{ij} \rangle_{P_0} - (1+\lambda) \langle f_{ij} \rangle_{P_\theta} - 2\gamma\, J_{ij}\, \mathbf{1}[(i,j)\notin E_{BNM}].
+\nabla_{J_{ij}} \mathcal{J} = \langle f_{ij} \rangle_{MD} + \lambda \langle f_{ij} \rangle_{P_0} - (1+\lambda) \langle f_{ij} \rangle_{P_\theta} - 2\gamma J_{ij} \mathbf{1}[(i,j)\notin E_{BNM}].
 $$
 
 For edges **inside** the BNM, $(i,j) \in E_{BNM}$, the update becomes
@@ -551,7 +545,7 @@ where $f_i^a(\sigma) = x_i^a(\sigma)$.
 The soft penalty is
 
 $$
-\gamma \sum_{(i,j)\notin E_{BNM}} \|J_{ij}\|_F^2.
+\gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2.
 $$
 
 This allows unsupported couplings if strongly supported by MD.
@@ -569,19 +563,19 @@ The soft constraint is usually preferable because it allows the MD data to overr
 A more general weighted penalty is
 
 $$
-R_{graph} = \gamma \sum_{i<j} w_{ij} \|J_{ij}\|_F^2, \qquad w_{ij} = 1 - A_{ij},
+R_{graph} = \gamma \sum_{i<j} w_{ij} \VertJ_{ij}\Vert_F^2, \qquad w_{ij} = 1 - A_{ij},
 $$
 
 where $A_{ij}$ is an edge confidence or normalized BNM adjacency score. Then
 
 $$
-\frac{\partial R_{graph}}{\partial J_{ij}} = 2\gamma\, w_{ij}\, J_{ij}.
+\frac{\partial R_{graph}}{\partial J_{ij}} = 2\gamma w_{ij} J_{ij}.
 $$
 
 The full coupling gradient becomes
 
 $$
-\nabla_{J_{ij}} \mathcal{J} = \langle f_{ij} \rangle_{MD} + \lambda \langle f_{ij} \rangle_{P_0} - (1+\lambda) \langle f_{ij} \rangle_{P_\theta} - 2\gamma\, w_{ij}\, J_{ij}.
+\nabla_{J_{ij}} \mathcal{J} = \langle f_{ij} \rangle_{MD} + \lambda \langle f_{ij} \rangle_{P_0} - (1+\lambda) \langle f_{ij} \rangle_{P_\theta} - 2\gamma w_{ij} J_{ij}.
 $$
 
 This formulation permits graded confidence in BNM edges.
@@ -593,7 +587,7 @@ This formulation permits graded confidence in BNM edges.
 The full objective contains three distinct pressures:
 
 $$
-\mathcal{J}(\theta) = \mathbb{E}_{MD}[\log P_\theta] \;-\; \lambda D_{KL}(P_0 \| P_\theta) \;-\; \gamma \sum_{(i,j)\notin E_{BNM}} \|J_{ij}\|_F^2.
+\mathcal{J}(\theta) = \mathbb{E}_{MD}[\log P_\theta] - \lambda D_{KL}(P_0 \Vert P_\theta) - \gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2.
 $$
 
 | Term | Asks that... |
@@ -637,22 +631,19 @@ Because exact summation over all states scales as $q^N$, Monte Carlo is required
 A generic gradient ascent update is
 
 $$
-h_i(a)^{t+1} = h_i(a)^t + \eta_h \, \frac{\partial \mathcal{J}}{\partial h_i(a)}.
+h_i(a)^{t+1} = h_i(a)^t + \eta_h \frac{\partial \mathcal{J}}{\partial h_i(a)}.
 $$
 
 For couplings,
 
 $$
-J_{ij}(a,b)^{t+1} = J_{ij}(a,b)^t + \eta_J \, \frac{\partial \mathcal{J}}{\partial J_{ij}(a,b)}.
+J_{ij}(a,b)^{t+1} = J_{ij}(a,b)^t + \eta_J \frac{\partial \mathcal{J}}{\partial J_{ij}(a,b)}.
 $$
 
 Substituting the gradient,
 
 $$
-\begin{aligned}
-J_{ij}(a,b)^{t+1} =\;& J_{ij}(a,b)^t + \eta_J \Big[ \langle f_{ij}^{ab} \rangle_{MD} + \lambda \langle f_{ij}^{ab} \rangle_{P_0} \\
-&- (1+\lambda) \langle f_{ij}^{ab} \rangle_{P_\theta} - 2\gamma\, J_{ij}(a,b)\, \mathbf{1}[(i,j)\notin E_{BNM}] \Big].
-\end{aligned}
+J_{ij}(a,b)^{t+1} = J_{ij}(a,b)^t + \eta_J \Big[ \langle f_{ij}^{ab} \rangle_{MD} + \lambda \langle f_{ij}^{ab} \rangle_{P_0} - (1+\lambda) \langle f_{ij}^{ab} \rangle_{P_\theta} - 2\gamma J_{ij}(a,b) \mathbf{1}[(i,j)\notin E_{BNM}] \Big].
 $$
 
 This is the practical update rule.
@@ -686,7 +677,7 @@ This fits the mixed MD-BNM moment target.
 Set $\lambda = 0$. Then
 
 $$
-\nabla_{J_{ij}} \mathcal{J} = \langle f_{ij} \rangle_{MD} - \langle f_{ij} \rangle_{P_\theta} - 2\gamma\, J_{ij}\, \mathbf{1}[(i,j)\notin E_{BNM}].
+\nabla_{J_{ij}} \mathcal{J} = \langle f_{ij} \rangle_{MD} - \langle f_{ij} \rangle_{P_\theta} - 2\gamma J_{ij} \mathbf{1}[(i,j)\notin E_{BNM}].
 $$
 
 This learns from MD but suppresses unsupported edges.

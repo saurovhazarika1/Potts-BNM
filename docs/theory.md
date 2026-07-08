@@ -33,7 +33,7 @@ This document develops the first part of the theory behind the Potts+BNM framewo
 The full objective is
 
 $$
-\mathcal{J}(\theta) = \mathbb{E}_{MD}\big[\log P_\theta(\sigma)\big] - \lambda D_{KL}\big(P_0 \Vert P_\theta\big) - \gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2
+\mathcal{J}(\theta) = \mathbb{E}_{MD}\big[\log P_\theta(\sigma)\big] - \lambda D_{KL}\big(P_0 \Vert P_\theta\big) - \gamma \sum_{(i,j)\notin E_{BNM}} \Vert J_{ij}\Vert_F^2
 $$
 
 where
@@ -50,7 +50,7 @@ The three terms have distinct roles:
 |---|---|
 | $\mathbb{E}_{MD}[\log P_\theta(\sigma)]$ | fit the MD ensemble |
 | $-\lambda D_{KL}(P_0 \Vert P_\theta)$ | stay close to the BNM distribution |
-| $-\gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2$ | respect the BNM graph topology |
+| $-\gamma \sum_{(i,j)\notin E_{BNM}} \Vert J_{ij}\Vert_F^2$ | respect the BNM graph topology |
 
 ---
 
@@ -151,13 +151,13 @@ $$
 We form the Lagrangian
 
 $$
-\mathcal{L}[P] = -\sum_\sigma P(\sigma)\log P(\sigma) - \alpha\Big[\sum_\sigma P(\sigma) - 1\Big] - \sum_{i,a} \eta_i(a)\Big[\sum_\sigma P(\sigma) x_i^a(\sigma) - p_i(a)\Big] - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b)\Big[\sum_\sigma P(\sigma) x_i^a(\sigma) x_j^b(\sigma) - p_{ij}(a,b)\Big].
+\mathcal{L}[P] = -\sum_\sigma P(\sigma)\log P(\sigma) - \alpha\Big[\sum_\sigma P(\sigma) - 1\Big] - \sum_{i,a} \eta_i(a)\Big[\sum_\sigma P(\sigma) x_i^a(\sigma) - p_i(a)\Big] - \sum_{i \lt j}\sum_{a,b} \eta_{ij}(a,b)\Big[\sum_\sigma P(\sigma) x_i^a(\sigma) x_j^b(\sigma) - p_{ij}(a,b)\Big].
 $$
 
 Take the functional derivative with respect to $P(\sigma)$:
 
 $$
-\frac{\partial \mathcal{L}}{\partial P(\sigma)} = -\log P(\sigma) - 1 - \alpha - \sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma).
+\frac{\partial \mathcal{L}}{\partial P(\sigma)} = -\log P(\sigma) - 1 - \alpha - \sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i \lt j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma).
 $$
 
 At the optimum,
@@ -169,19 +169,19 @@ $$
 Therefore,
 
 $$
-\log P(\sigma) = -1 - \alpha - \sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma).
+\log P(\sigma) = -1 - \alpha - \sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i \lt j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma).
 $$
 
 Exponentiating,
 
 $$
-P(\sigma) = \exp[-1-\alpha] \exp\left[-\sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma)\right].
+P(\sigma) = \exp[-1-\alpha] \exp\left[-\sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i \lt j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma)\right].
 $$
 
 Define the partition function $Z = \exp[1+\alpha]$, so
 
 $$
-P(\sigma) = \frac{1}{Z} \exp\left[-\sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i<j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma)\right].
+P(\sigma) = \frac{1}{Z} \exp\left[-\sum_{i,a} \eta_i(a) x_i^a(\sigma) - \sum_{i \lt j}\sum_{a,b} \eta_{ij}(a,b) x_i^a(\sigma) x_j^b(\sigma)\right].
 $$
 
 This is an exponential-family distribution.
@@ -189,13 +189,13 @@ This is an exponential-family distribution.
 By defining $h_i(a) = -\eta_i(a)$ and $J_{ij}(a,b) = -\eta_{ij}(a,b)$, we obtain
 
 $$
-P_\theta(\sigma) = \frac{1}{Z_\theta} \exp\left[\sum_i h_i(\sigma_i) + \sum_{i<j} J_{ij}(\sigma_i,\sigma_j)\right].
+P_\theta(\sigma) = \frac{1}{Z_\theta} \exp\left[\sum_i h_i(\sigma_i) + \sum_{i \lt j} J_{ij}(\sigma_i,\sigma_j)\right].
 $$
 
 Equivalently, defining the Hamiltonian
 
 $$
-H_\theta(\sigma) = -\sum_i h_i(\sigma_i) - \sum_{i<j} J_{ij}(\sigma_i,\sigma_j),
+H_\theta(\sigma) = -\sum_i h_i(\sigma_i) - \sum_{i \lt j} J_{ij}(\sigma_i,\sigma_j),
 $$
 
 we get the Boltzmann form
@@ -223,7 +223,7 @@ $$
 The pairwise maximum entropy Hamiltonian is
 
 $$
-H_\theta(\sigma) = -\sum_i h_i(\sigma_i) - \sum_{i<j} J_{ij}(\sigma_i,\sigma_j)
+H_\theta(\sigma) = -\sum_i h_i(\sigma_i) - \sum_{i \lt j} J_{ij}(\sigma_i,\sigma_j)
 $$
 
 where $h_i(a)$ is the local field for state $a$ at site $i$, and $J_{ij}(a,b)$ is the coupling between state $a$ at site $i$ and state $b$ at site $j$.
@@ -301,13 +301,13 @@ $$
 Now substitute the Hamiltonian:
 
 $$
--H_\theta(\sigma) = \sum_i h_i(\sigma_i) + \sum_{i<j} J_{ij}(\sigma_i,\sigma_j).
+-H_\theta(\sigma) = \sum_i h_i(\sigma_i) + \sum_{i \lt j} J_{ij}(\sigma_i,\sigma_j).
 $$
 
 Therefore,
 
 $$
-\mathcal{L}(\theta) = \sum_{i,a} h_i(a) \big\langle x_i^a \big\rangle_{MD} + \sum_{i<j}\sum_{a,b} J_{ij}(a,b) \big\langle x_i^a x_j^b \big\rangle_{MD} - \log Z_\theta.
+\mathcal{L}(\theta) = \sum_{i,a} h_i(a) \big\langle x_i^a \big\rangle_{MD} + \sum_{i \lt j}\sum_{a,b} J_{ij}(a,b) \big\langle x_i^a x_j^b \big\rangle_{MD} - \log Z_\theta.
 $$
 
 Now differentiate with respect to a field $h_i(a)$:
@@ -461,13 +461,13 @@ Let $E_{BNM}$ be the undirected version of the BNM edge set. That is, if either 
 For unsupported edges, $(i,j) \notin E_{BNM}$, we penalize the coupling matrix $J_{ij}$. The penalty is
 
 $$
-R_{graph}(\theta) = \gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2.
+R_{graph}(\theta) = \gamma \sum_{(i,j)\notin E_{BNM}} \Vert J_{ij}\Vert_F^2.
 $$
 
 The Frobenius norm is
 
 $$
-\VertJ_{ij}\Vert_F^2 = \sum_{a=1}^{q} \sum_{b=1}^{q} J_{ij}(a,b)^2.
+\Vert J_{ij}\Vert_F^2 = \sum_{a=1}^{q} \sum_{b=1}^{q} J_{ij}(a,b)^2.
 $$
 
 The derivative is
@@ -545,7 +545,7 @@ where $f_i^a(\sigma) = x_i^a(\sigma)$.
 The soft penalty is
 
 $$
-\gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2.
+\gamma \sum_{(i,j)\notin E_{BNM}} \Vert J_{ij}\Vert_F^2.
 $$
 
 This allows unsupported couplings if strongly supported by MD.
@@ -563,7 +563,7 @@ The soft constraint is usually preferable because it allows the MD data to overr
 A more general weighted penalty is
 
 $$
-R_{graph} = \gamma \sum_{i<j} w_{ij} \VertJ_{ij}\Vert_F^2, \qquad w_{ij} = 1 - A_{ij},
+R_{graph} = \gamma \sum_{i \lt j} w_{ij} \Vert J_{ij}\Vert_F^2, \qquad w_{ij} = 1 - A_{ij},
 $$
 
 where $A_{ij}$ is an edge confidence or normalized BNM adjacency score. Then
@@ -587,7 +587,7 @@ This formulation permits graded confidence in BNM edges.
 The full objective contains three distinct pressures:
 
 $$
-\mathcal{J}(\theta) = \mathbb{E}_{MD}[\log P_\theta] - \lambda D_{KL}(P_0 \Vert P_\theta) - \gamma \sum_{(i,j)\notin E_{BNM}} \VertJ_{ij}\Vert_F^2.
+\mathcal{J}(\theta) = \mathbb{E}_{MD}[\log P_\theta] - \lambda D_{KL}(P_0 \Vert P_\theta) - \gamma \sum_{(i,j)\notin E_{BNM}} \Vert J_{ij}\Vert_F^2.
 $$
 
 | Term | Asks that... |

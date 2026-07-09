@@ -1,5 +1,7 @@
 # MD Probability-Based Communication Analysis
 
+> **Status:** 🚧 Active research project. Methodology, parameter conventions, and APIs may still change as this work moves toward publication.
+
 This repository implements Potts+BNM, a statistical-mechanical framework that integrates Bayesian Network Modeling (BNM) with a Potts Hamiltonian to infer both the underlying residue interaction network and the equilibrium energy landscape governing biomolecular conformational dynamics from molecular dynamics (MD) simulations.
 
 The framework first infers the conditional dependency structure between protein residues using a Bayesian Network learned from discretized MD trajectories. This learned topology is then used to constrain a Potts Hamiltonian, allowing only statistically supported residue–residue interactions while preserving the expressive power of a maximum-entropy energy model. The resulting Hamiltonian provides an interpretable representation of the conformational ensemble through residue-specific fields and pairwise coupling parameters that capture both local preferences and long-range allosteric interactions.
@@ -10,14 +12,23 @@ Because the model defines a global probabilistic description of the conformation
 
 The communication pathway analysis presented in this repository represents one application of the Potts+BNM framework. By combining statistically learned residue couplings with graph-based path analysis, the framework enables systematic investigation of how allosteric information propagates through the energy landscape encoded by the learned Hamiltonian.
 
+---
+
+## Related Repositories
+
+This is Part 1 of a three-part research program:
+
+- **Part 1 — this repository:** Potts+BNM fitting from MD and communication pathway analysis
+- **Part 2 — [Potts-BNM-Perturbation](https://github.com/saurovhazarika1/Potts-BNM-Perturbation):** mutation effect prediction via perturbation theory on the fitted Hamiltonian
+- **Part 3 — Potts-BNM-Generative (in development):** sequence-conditioned generative prediction of the Hamiltonian for unseen sequences
 
 ---
 
 ## Repository Structure
 
 ```
-├──fit_potts_bnm.py # Potts+BNM parameter learning
-├── communication_analysis.py          # Communication pathway analysis
+├── fit_potts_bnm.py             # Potts+BNM parameter learning
+├── communication_analysis.py    # Communication pathway analysis
 ├── energy_spectrum_analysis.py  # communication-energy spectrum changes between highMD and lowMD regions
 └── README.md
 ```
@@ -72,17 +83,21 @@ Communication Analysis
 
 ## Model Training: Potts+BNM Parameter Learning
 
-Before any communication analysis can be performed, the Potts Hamiltonian must be fit to the MD trajectory. This is done in `potts_fit_md_bn_elastic_graph.py`.
+Before any communication analysis can be performed, the Potts Hamiltonian must be fit to the MD trajectory. This is done in `fit_potts_bnm.py`.
 
 The Potts Hamiltonian is learned from MD trajectories and Bayesian Network samples by matching one- and two-body marginal distributions.
 
 The target marginals are:
 
-$$f_i^{\mathrm{target}} = (1-\alpha) f_i^{\mathrm{MD}} + \alpha f_i^{\mathrm{BN}}$$
+$$
+f_i^{\mathrm{target}} = (1-\alpha) f_i^{\mathrm{MD}} + \alpha f_i^{\mathrm{BN}}
+$$
 
 and
 
-$$f_{ij}^{\mathrm{target}} = (1-\alpha) f_{ij}^{\mathrm{MD}} + \alpha f_{ij}^{\mathrm{BN}}$$
+$$
+f_{ij}^{\mathrm{target}} = (1-\alpha) f_{ij}^{\mathrm{MD}} + \alpha f_{ij}^{\mathrm{BN}}
+$$
 
 where $\alpha$ controls the contribution of Bayesian Network samples relative to the raw MD statistics.
 
@@ -154,7 +169,9 @@ Bayesian Networks can be generated using BaNDyT.
 
 For every MD frame, the Potts model assigns a total statistical energy:
 
-$E_{\mathrm{MD}}(t) = -\sum_i h_i(x_i(t)) - \sum_{i<j} J_{ij}(x_i(t), x_j(t))$
+$$
+E_{\mathrm{MD}}(t) = -\sum_i h_i(x_i(t)) - \sum_{i \lt j} J_{ij}(x_i(t), x_j(t))
+$$
 
 where:
 
@@ -181,7 +198,9 @@ Window 3 : frames 200–299
 
 The average energy of each window is:
 
-$$E_{\mathrm{MD}}(w) = \frac{1}{N_w} \sum_{t \in w} E_{\mathrm{MD}}(t)$$
+$$
+E_{\mathrm{MD}}(w) = \frac{1}{N_w} \sum_{t \in w} E_{\mathrm{MD}}(t)
+$$
 
 where $N_w$ is the number of frames in the window.
 
@@ -193,7 +212,9 @@ Window averaging reduces statistical noise and provides a natural timescale for 
 
 Each window energy is converted into an equilibrium probability using the Boltzmann distribution:
 
-$$P_{\mathrm{MD}}(w) = \frac{e^{-\beta E_{\mathrm{MD}}(w)}}{\sum_{w'} e^{-\beta E_{\mathrm{MD}}(w')}}$$
+$$
+P_{\mathrm{MD}}(w) = \frac{e^{-\beta E_{\mathrm{MD}}(w)}}{\sum_{w'} e^{-\beta E_{\mathrm{MD}}(w')}}
+$$
 
 Throughout this work:
 
@@ -235,9 +256,13 @@ The analysis defines:
 
 Equivalently:
 
-$$\text{highMD} = \text{low Potts energy}$$
+$$
+\text{highMD} = \text{low Potts energy}
+$$
 
-$$\text{lowMD} = \text{high Potts energy}$$
+$$
+\text{lowMD} = \text{high Potts energy}
+$$
 
 ---
 
@@ -247,13 +272,17 @@ The learned Potts couplings define a weighted residue interaction network.
 
 For each interacting residue pair:
 
-$$S_{ij} = \|J_{ij}\|_F$$
+$$
+S_{ij} = \Vert J_{ij} \Vert_F
+$$
 
 where $S_{ij}$ is the Frobenius norm of the Potts coupling tensor.
 
 Communication edge costs are then defined as:
 
-$$c_{ij} = S_{\max} - S_{ij} + \varepsilon$$
+$$
+c_{ij} = S_{\max} - S_{ij} + \varepsilon
+$$
 
 so that stronger Potts couplings correspond to lower communication cost.
 
@@ -269,7 +298,9 @@ For every MD window:
 
 The pathway energy is:
 
-$$E_{\mathrm{path}} = -\sum_{i \in \mathrm{path}} h_i - \sum_{(i,j) \in \mathrm{path}} J_{ij}$$
+$$
+E_{\mathrm{path}} = -\sum_{i \in \mathrm{path}} h_i - \sum_{(i,j) \in \mathrm{path}} J_{ij}
+$$
 
 Two energy definitions are supported:
 
@@ -284,7 +315,9 @@ Both length-normalized versions (`HJ_MEAN` and `J_ONLY_MEAN`) are also available
 
 Once every pathway's communication energy is known, each pathway is assigned a Boltzmann probability within its MD window:
 
-$$P_{\mathrm{path}}(p) = \frac{e^{-\beta E_{\mathrm{path}}(p)}}{\sum_{p'} e^{-\beta E_{\mathrm{path}}(p')}}$$
+$$
+P_{\mathrm{path}}(p) = \frac{e^{-\beta E_{\mathrm{path}}(p)}}{\sum_{p'} e^{-\beta E_{\mathrm{path}}(p')}}
+$$
 
 This probability is used to compare communication pathways against one another: pathways with lower communication energy are assigned higher probability, and only the most probable pathways are retained for downstream analyses.
 
@@ -292,9 +325,7 @@ This probability is used to compare communication pathways against one another: 
 
 ## Occupancy Analysis
 
-Each communication pathway is represented by a binary activity trajectory:
-
-$$A_p(w) = \begin{cases} 1, & \text{path is active} \\ 0, & \text{otherwise} \end{cases}$$
+Each communication pathway is represented by a binary activity trajectory, $A_p(w)$, equal to $1$ if the path is active in window $w$ and $0$ otherwise.
 
 Using this binary trajectory, the code computes:
 
@@ -314,7 +345,9 @@ Persistence quantifies how long communication pathways remain active.
 
 For lag time $\tau$:
 
-$$S(\tau) = P\left(A(t+\tau) = 1 \mid A(t) = 1\right)$$
+$$
+S(\tau) = P\left(A(t+\tau) = 1 \mid A(t) = 1\right)
+$$
 
 This is the probability that a pathway remains active after $\tau$ windows, given that it is active now.
 
@@ -333,17 +366,23 @@ For each pathway, the communication energy distribution is analyzed separately w
 
 **Mean Path Energy**
 
-$$\langle E_{\mathrm{path}} \rangle$$
+$$
+\langle E_{\mathrm{path}} \rangle
+$$
 
 **Energy Entropy**
 
-$$S = -\sum_i p_i \ln p_i$$
+$$
+S = -\sum_i p_i \ln p_i
+$$
 
 where $p_i$ denotes the probability of occupying energy bin $i$.
 
 **Participation Ratio**
 
-$$PR = \frac{1}{\sum_i p_i^2}$$
+$$
+PR = \frac{1}{\sum_i p_i^2}
+$$
 
 This estimates the effective number of communication-energy states contributing to the ensemble.
 
@@ -355,15 +394,21 @@ The effective number of populated energy bins is calculated from the communicati
 
 Define:
 
-$$f_{\mathrm{low}} = P(E < E_{10})$$
+$$
+f_{\mathrm{low}} = P(E \lt E_{10})
+$$
 
-$$f_{\mathrm{high}} = P(E > E_{90})$$
+$$
+f_{\mathrm{high}} = P(E \gt E_{90})
+$$
 
 where $E_{10}$ and $E_{90}$ are the 10th and 90th percentiles of the pathway-energy distribution.
 
 Tail polarization is:
 
-$$TP = f_{\mathrm{low}} + f_{\mathrm{high}}$$
+$$
+TP = f_{\mathrm{low}} + f_{\mathrm{high}}
+$$
 
 **Additional Metrics**
 
@@ -423,7 +468,9 @@ This workflow distinguishes two different quantities.
 
 The Potts Hamiltonian defines the equilibrium probability of each MD window:
 
-$$P_{\mathrm{MD}} = \frac{e^{-\beta E_{\mathrm{MD}}}}{Z}$$
+$$
+P_{\mathrm{MD}} = \frac{e^{-\beta E_{\mathrm{MD}}}}{Z}
+$$
 
 which identifies thermodynamically favorable and unfavorable conformational regions.
 
@@ -442,4 +489,12 @@ Thus, the Potts model is **not** used to estimate the global conformational free
 
 ---
 
+## Citation
 
+A preprint and peer-reviewed publication will be linked here upon release. If you use this code before then, please cite this repository directly.
+
+---
+
+## License
+
+This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
